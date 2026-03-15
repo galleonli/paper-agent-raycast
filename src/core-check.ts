@@ -15,11 +15,10 @@ export type CoreCheckPrefs = {
 };
 
 /**
- * One-liner to copy: clone core repo, create venv, install deps, copy config.
- * User should then set Config file path and Paper directory in Raycast Preferences.
+ * One-line install: clone repo, cd, run bootstrap. Paste in terminal for one-click install.
  */
 export function getBootstrapCopyText(): string {
-  return `git clone ${CORE_INSTALL_URL}.git && cd paper-agent && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && cp config.example.yaml config.yaml`;
+  return `git clone ${CORE_INSTALL_URL}.git && cd paper-agent && ./scripts/bootstrap.sh`;
 }
 
 /**

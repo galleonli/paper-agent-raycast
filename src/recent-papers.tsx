@@ -1,4 +1,4 @@
-import { Action, ActionPanel, List, getPreferenceValues, Clipboard, open } from "@raycast/api";
+import { Action, ActionPanel, List, getPreferenceValues, open } from "@raycast/api";
 import * as path from "node:path";
 import { execFileSync } from "node:child_process";
 import { useEffect, useState } from "react";
@@ -55,7 +55,7 @@ function CoreNotFoundEmptyView() {
       description={`Install: ${CORE_INSTALL_URL} — or run the bootstrap command (Copy action).`}
       actions={
         <ActionPanel>
-          <Action title="Copy Bootstrap Command" onAction={() => Clipboard.copy(getBootstrapCopyText())} />
+          <Action.CopyToClipboard title="Copy Bootstrap Command" content={getBootstrapCopyText()} />
           <Action title="Open GitHub" onAction={() => open(CORE_INSTALL_URL)} />
         </ActionPanel>
       }

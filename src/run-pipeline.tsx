@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast, Toast, Clipboard, open } from "@raycast/api";
+import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast, Toast, open } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import { buildRunEnv, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
@@ -113,7 +113,7 @@ function RunPipelineView() {
         navigationTitle="Run Paper Agent"
         actions={
           <ActionPanel>
-            <Action title="Copy Bootstrap Command" onAction={() => Clipboard.copy(getBootstrapCopyText())} />
+            <Action.CopyToClipboard title="Copy Bootstrap Command" content={getBootstrapCopyText()} />
             <Action title="Open GitHub" onAction={() => open(CORE_INSTALL_URL)} />
           </ActionPanel>
         }
