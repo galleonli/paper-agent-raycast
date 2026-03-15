@@ -26,7 +26,7 @@ You need the [Paper Agent core](https://github.com/galleonli/paper-agent) instal
 git clone https://github.com/galleonli/paper-agent.git && cd paper-agent && ./scripts/bootstrap.sh
 ```
 
-Then run the pipeline once (e.g. `./.venv/bin/python -m paper_agent run --config config.yaml`). For detailed core install (Windows, cron, config options), see the [core README Quick start](https://github.com/galleonli/paper-agent#quick-start).
+Then run the pipeline once (e.g. `./.venv/bin/python -m paper_agent run --config config.yaml`). For detailed core install (cron, config options), see the [core README Quick start](https://github.com/galleonli/paper-agent#quick-start).
 
 ### 2. Install this extension
 
