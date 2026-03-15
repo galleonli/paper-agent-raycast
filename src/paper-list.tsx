@@ -235,7 +235,7 @@ export function PaperListView({
   const { favorites, isLoading, isFavorite, addFavorite, removeFavorite } = useFavoritePapers();
   const { queue, isLoading: isQueueLoading, isQueued, addToQueue, removeFromQueue } = useReadingQueue();
   const { isLoading: isReadLoading, isRead, markAsRead, markAsUnread } = useReadPapers();
-  const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const papersById = useMemo(() => new Map(papers.map((paper) => [getPaperStateKey(paper), paper])), [papers]);
 
   useEffect(() => {
@@ -327,7 +327,7 @@ export function FavoritePapersView(): ReactElement {
   const { favorites, isLoading, addFavorite, removeFavorite } = useFavoritePapers();
   const { queue, isLoading: isQueueLoading, isQueued, addToQueue, removeFromQueue } = useReadingQueue();
   const { isLoading: isReadLoading, isRead, markAsRead, markAsUnread } = useReadPapers();
-  const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const favoritesById = useMemo(() => new Map(favorites.map((paper) => [getPaperStateKey(paper), paper])), [favorites]);
 
   useEffect(() => {
@@ -407,7 +407,7 @@ export function ReadingQueueView(): ReactElement {
   const { queue, isLoading, isQueued, addToQueue, removeFromQueue } = useReadingQueue();
   const { favorites, isLoading: isFavoriteLoading, isFavorite, addFavorite, removeFavorite } = useFavoritePapers();
   const { isLoading: isReadLoading, isRead, markAsRead, markAsUnread } = useReadPapers();
-  const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const queueById = useMemo(() => new Map(queue.map((paper) => [getPaperStateKey(paper), paper])), [queue]);
 
   useEffect(() => {
