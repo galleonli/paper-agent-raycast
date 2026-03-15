@@ -251,21 +251,23 @@ export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistCo
     if (provider === "mbox" || provider === "eml_dir") {
       throw new Error(`Scholar provider '${provider}' requires local paths not exposed in Raycast Preferences.`);
     }
-    if (!(prefs.scholarImapHost?.trim() ?? "")) {
-      throw new Error("Scholar IMAP host is required when Scholar Inbox is enabled.");
-    }
-    if (!(prefs.scholarImapUser?.trim() ?? "")) {
-      throw new Error("Scholar IMAP user is required when Scholar Inbox is enabled.");
-    }
-    if (!(prefs.scholarImapPasswordEnv?.trim() ?? "")) {
-      throw new Error("Scholar IMAP password env var is required when Scholar Inbox is enabled.");
-    }
-    const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
-    const hasImapPassword = !!(stripAllWhitespace(prefs.scholarImapPassword) || process.env[imapEnvName]);
-    if (!hasImapPassword) {
-      throw new Error(
-        "Set 'Scholar IMAP password' in Preferences or set the env var (e.g. IMAP_PASSWORD) so Raycast can pass it to the pipeline.",
-      );
+    if (provider === "imap") {
+      if (!(prefs.scholarImapHost?.trim() ?? "")) {
+        throw new Error("Scholar IMAP host is required when Scholar provider is IMAP.");
+      }
+      if (!(prefs.scholarImapUser?.trim() ?? "")) {
+        throw new Error("Scholar IMAP user is required when Scholar provider is IMAP.");
+      }
+      if (!(prefs.scholarImapPasswordEnv?.trim() ?? "")) {
+        throw new Error("Scholar IMAP password env var is required when Scholar provider is IMAP.");
+      }
+      const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
+      const hasImapPassword = !!(stripAllWhitespace(prefs.scholarImapPassword) || process.env[imapEnvName]);
+      if (!hasImapPassword) {
+        throw new Error(
+          "Set 'Scholar IMAP password' in Preferences or set the env var (e.g. IMAP_PASSWORD) so Raycast can pass it to the pipeline.",
+        );
+      }
     }
   }
 
