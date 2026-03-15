@@ -72,7 +72,10 @@ export default function Command() {
     }).then((r) => setCoreOk(r.ok));
   }, []);
 
-  const papers = useMemo(() => (HAS_CONFIG && HAS_PAPER_DIR && coreOk ? loadSearchResults(searchText) : []), [searchText, coreOk]);
+  const papers = useMemo(
+    () => (HAS_CONFIG && HAS_PAPER_DIR && coreOk ? loadSearchResults(searchText) : []),
+    [searchText, coreOk],
+  );
 
   if (!HAS_CONFIG || !HAS_PAPER_DIR) {
     return (

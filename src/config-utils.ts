@@ -89,7 +89,7 @@ export function applyPaperDirOverride(config: YamlObject, prefPaperDir: string):
 export function withEffectiveConfigPath<T>(
   configPath: string,
   prefPaperDir: string,
-  runner: (effectiveConfigPath: string) => T
+  runner: (effectiveConfigPath: string) => T,
 ): T {
   const preferred = prefPaperDir.trim();
   if (!preferred) {
@@ -106,7 +106,7 @@ export function withEffectiveConfigPath<T>(
     const merged = applyPaperDirOverride(config, preferred);
     tempConfigPath = path.join(
       os.tmpdir(),
-      `paper-agent-raycast-${Date.now()}-${Math.random().toString(36).slice(2, 10)}.yaml`
+      `paper-agent-raycast-${Date.now()}-${Math.random().toString(36).slice(2, 10)}.yaml`,
     );
     fs.writeFileSync(tempConfigPath, yaml.dump(merged), "utf-8");
     return runner(tempConfigPath);

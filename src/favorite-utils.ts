@@ -85,7 +85,9 @@ export function useFavoritePapers() {
 
   const removeFavorite = useCallback(
     async (paper: Paper) => {
-      await updateFavorites((current) => current.filter((entry) => getPaperStateKey(entry) !== getPaperStateKey(paper)));
+      await updateFavorites((current) =>
+        current.filter((entry) => getPaperStateKey(entry) !== getPaperStateKey(paper)),
+      );
     },
     [updateFavorites],
   );

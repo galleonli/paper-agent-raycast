@@ -101,9 +101,7 @@ function RunPipelineView() {
   }, []);
 
   if (status === "checking") {
-    return (
-      <Detail isLoading={true} markdown="Checking Paper Agent core…" navigationTitle="Run Paper Agent" />
-    );
+    return <Detail isLoading={true} markdown="Checking Paper Agent core…" navigationTitle="Run Paper Agent" />;
   }
 
   if (status === "core-missing") {

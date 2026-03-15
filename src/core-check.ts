@@ -37,8 +37,7 @@ export async function checkCoreAvailable(prefs: CoreCheckPrefs): Promise<{
   }
 
   const agentRoot = path.dirname(configPath);
-  const pythonBin =
-    (prefs.pythonPath ?? "").trim() || path.join(agentRoot, ".venv", "bin", "python3");
+  const pythonBin = (prefs.pythonPath ?? "").trim() || path.join(agentRoot, ".venv", "bin", "python3");
   if (!fs.existsSync(pythonBin)) {
     return { ok: false, error: `Python executable not found: ${pythonBin}` };
   }
@@ -52,8 +51,7 @@ export async function checkCoreAvailable(prefs: CoreCheckPrefs): Promise<{
   } catch {
     return {
       ok: false,
-      error:
-        "paper_agent module not found or failed. Install core from GitHub and set Preferences.",
+      error: "paper_agent module not found or failed. Install core from GitHub and set Preferences.",
     };
   }
 }

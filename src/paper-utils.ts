@@ -72,9 +72,7 @@ export function parseCliPapers(rawJson: string, options: ParseOptions): Paper[] 
         abstract: e.abstract as string | undefined,
         whyThisPaper: e.why_this_paper as string | undefined,
         categories: e.categories as string[] | undefined,
-        researchSummary: rs
-          ? { heading: rs.heading as string, body: rs.body as string }
-          : undefined,
+        researchSummary: rs ? { heading: rs.heading as string, body: rs.body as string } : undefined,
         relatedLocalPapers: related
           .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
           .map((item) => {
@@ -101,8 +99,7 @@ export function renderPaperDetailMarkdown(paper: Paper, displayDate: string): st
     paper.relatedLocalPapers && paper.relatedLocalPapers.length > 0
       ? `\n---\n\n## Related local papers\n\n${paper.relatedLocalPapers
           .map((item) => {
-            const reasonText =
-              item.reasons && item.reasons.length > 0 ? `\n  - ${item.reasons.join("\n  - ")}` : "";
+            const reasonText = item.reasons && item.reasons.length > 0 ? `\n  - ${item.reasons.join("\n  - ")}` : "";
             return `- **${item.title}**${item.date ? ` (${item.date})` : ""}${reasonText}`;
           })
           .join("\n")}`
@@ -121,13 +118,17 @@ ${paper.whyThisPaper ?? "N/A"}
 
 ${paper.abstract ?? "No abstract available."}
 ${relatedSection}
-${paper.researchSummary?.body ? `
+${
+  paper.researchSummary?.body
+    ? `
 
 ---
 
 ## ${paper.researchSummary.heading ?? "Research summary"}
 
-${paper.researchSummary.body}` : ""}
+${paper.researchSummary.body}`
+    : ""
+}
 ${paper.link ? `\n---\n[Open Paper](${paper.link})` : ""}
 `;
 }
