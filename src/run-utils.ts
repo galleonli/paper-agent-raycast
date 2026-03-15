@@ -117,8 +117,10 @@ function mergeConfig(base: YamlObject, prefs: Preferences.RunPipeline): YamlObje
     merged.direction = {};
   }
   const direction = merged.direction as YamlObject;
-  direction.max_papers_per_day = parseInt(prefs.maxPapersPerDay?.trim() ?? "", 10);
-  direction.lookback_days = parseInt(prefs.lookbackDays?.trim() ?? "", 10);
+  const maxPapers = parseInt(prefs.maxPapersPerDay?.trim() ?? "", 10);
+  const lookback = parseInt(prefs.lookbackDays?.trim() ?? "", 10);
+  direction.max_papers_per_day = Number.isNaN(maxPapers) || maxPapers < 1 ? 12 : maxPapers;
+  direction.lookback_days = Number.isNaN(lookback) || lookback < 1 ? 5 : lookback;
   direction.include_keywords = parseList(prefs.keyphrases);
   direction.allow_categories = parseList(prefs.allowCategories);
   direction.deny_categories = parseList(prefs.denyCategories);
