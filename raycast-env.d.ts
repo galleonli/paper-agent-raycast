@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** Config file path - Path to Paper Agent config.yaml (same file used by Config.py). */
+  /** Config file path - Path to the Paper Agent core config.yaml. */
   "configPath": string,
   /** Paper directory - Root directory for papers (daily digest and notes). Library is stored under paper_dir/library. Maps to delivery.paper_dir. */
   "paperDir": string,
@@ -42,7 +42,7 @@ type ExtensionPreferences = {
   "openaiApiKey": string,
   /** Enable Scholar Inbox - Toggle Google Scholar Alerts (email only). */
   "scholarEnabled": boolean,
-  /** Scholar email provider - Email source: imap, gmail, mbox, or eml_dir. */
+  /** Scholar email provider - Email source for extension runs: imap or gmail. */
   "scholarProvider": string,
   /** Scholar IMAP host - IMAP host for Scholar Alerts (e.g. imap.gmail.com). */
   "scholarImapHost": string,

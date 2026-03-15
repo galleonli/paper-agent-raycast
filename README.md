@@ -2,7 +2,13 @@
 
 A [Raycast](https://www.raycast.com/) extension for the [Paper Agent](https://github.com/galleonli/paper-agent) workflow: run the pipeline, browse today’s and recent papers, search your library, manage favorites and a reading queue, and schedule daily runs on macOS.
 
-**This repo contains the extension only.** You must install and configure the [Paper Agent core](https://github.com/galleonli/paper-agent) first.
+> [!IMPORTANT]
+> **Repository references**
+> - **Paper Agent core repo (main workflow):** https://github.com/galleonli/paper-agent
+> - **Paper Agent Raycast extension repo (this project):** https://github.com/galleonli/paper-agent-raycast
+>
+> **Start with the [Paper Agent core README](https://github.com/galleonli/paper-agent#readme) first.** This repo contains the Raycast extension only.
+> Complete core setup and run it once before using extension commands.
 
 ---
 
@@ -18,7 +24,8 @@ A [Raycast](https://www.raycast.com/) extension for the [Paper Agent](https://gi
 
 ### 1. Install Paper Agent core
 
-You need the [Paper Agent core](https://github.com/galleonli/paper-agent) installed: clone, create a venv, install deps, copy `config.example.yaml` to `config.yaml`, and run the pipeline at least once so the library is populated.
+Follow the [core README Quick start](https://github.com/galleonli/paper-agent#quick-start) first, then return here.
+You need core installed and runnable (valid `config.yaml`, environment ready, and at least one successful run so `library/` has data).
 
 **One-liner (Unix/macOS):**
 
@@ -51,15 +58,15 @@ When you use **Run Paper Agent** or **Install Daily Schedule**, the extension bu
 
 | Command | Description |
 | --------| ----------- |
-| **Run Paper Agent** | Run the full pipeline once. Uses Preferences for direction, delivery, summarize, sources; reads the rest from `config.yaml`. Shows a toast when done, skipped, or failed. |
+| **Run Paper Agent** | Start the full pipeline in background: fetch, filter, summarize, and write local notes/library plus daily/weekly digests. Runtime fields come from Preferences (direction, delivery, summarize, sources); shared sections still come from `config.yaml`. |
 | **Today Papers** | Browse today’s papers from your local library. Detail view: title, authors, abstract, “Why this paper,” optional research summary. Actions: open paper/note, related papers, mark read, favorites, reading queue. |
-| **Recent Papers** | Browse recently added papers (last N days). Same detail and actions as Today Papers. Limit is set in Preferences (Recent papers limit). |
+| **Recent Papers** | Browse recently added papers (count-based). Same detail and actions as Today Papers. Limit is set in Preferences (Recent papers limit). |
 | **Search Papers** | Search the local library by title, authors, abstract, categories, date. Same list actions as above. |
 | **Favorite Papers** | Papers you’ve added to favorites from any list. Stored locally in the extension. |
 | **Reading Queue** | Papers you’ve queued for reading. Stored locally; same open/read/favorite actions. |
 | **Install Daily Schedule** | Install a macOS `launchd` job that runs Paper Agent daily at **04:00** and catches up once after boot/login if 04:00 was missed. Re-run after changing Preferences that affect the pipeline. |
 | **Remove Daily Schedule** | Uninstall the daily `launchd` job. Logs and status history are kept. |
-| **Check Run Status** | View whether the daily schedule is installed, today’s result, last successful day, and last run metadata. Actions: open config directory, log directory, state directory, last run log. |
+| **Check Run Status** | View whether the daily schedule is installed, today’s result, last successful day, and last run metadata. Actions: open config directory, log directory, state directory, and last run log (when available). |
 | **Open Paper Directory** | Open the configured paper directory in Finder (notes, `library/`, digests). |
 | **Open Config Directory** | Open the folder that contains your `config.yaml` (core repo root) in Finder. Also available as an action in **Run Paper Agent** (Core not found) and **Check Run Status** when Config file path is set. |
 
