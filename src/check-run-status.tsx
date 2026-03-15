@@ -47,14 +47,16 @@ function formatReason(reason: string | undefined): string {
 
 function computeTodaySummary(lastSuccessDate: string | undefined, lastRun: LastRunStatus | undefined): string {
   const today = todayDateString();
+  // Prefer the most recent run for today so summary matches "Last Run" (e.g. scheduled success then manual fail → show Failed).
+  if (lastRun?.date === today) {
+    if (lastRun.status === "success") return "Success";
+    if (lastRun.status === "failed") return "Failed";
+    if (lastRun.status === "skipped") return `Skipped (${formatReason(lastRun.reason)})`;
+    // Unknown or other status: show it instead of falling through to lastSuccessDate.
+    return lastRun.status ?? "Unknown";
+  }
   if (lastSuccessDate === today) {
     return "Success";
-  }
-  if (lastRun?.date === today && lastRun.status === "failed") {
-    return "Failed";
-  }
-  if (lastRun?.date === today && lastRun.status === "skipped") {
-    return `Skipped (${formatReason(lastRun.reason)})`;
   }
   return "Not run yet";
 }
@@ -67,14 +69,18 @@ export default function Command() {
   const todaySummary = computeTodaySummary(lastSuccessDate, lastRun);
 
   const markdown = [
-    "# Daily Schedule Status",
+    "# Run Status",
+    "",
+    "Status applies to both **scheduled** (daily 04:00) and **manual** (Run Paper Agent) runs; they share the same state and last-run record.",
+    "",
+    "## Schedule",
     "",
     `- Installed: ${installed ? "Yes" : "No"}`,
     `- Scheduled time: 04:00 local time`,
-    `- Today's status: ${todaySummary}`,
+    `- Today's result: ${todaySummary}`,
     `- Last successful day: ${lastSuccessDate ?? "Never"}`,
     "",
-    "## Last Run",
+    "## Last Run (scheduled or manual)",
     "",
     `- Status: ${lastRun?.status ?? "Unknown"}`,
     `- Mode: ${lastRun?.mode ?? "Unknown"}`,
@@ -95,7 +101,7 @@ export default function Command() {
   return (
     <Detail
       markdown={markdown}
-      navigationTitle="Daily Schedule Status"
+      navigationTitle="Run Status"
       actions={
         <ActionPanel>
           <Action title="Open Log Directory" onAction={() => open(schedulePaths.logDir)} />
