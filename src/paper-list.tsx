@@ -18,6 +18,7 @@ type PaperListViewProps = {
   emptyTitle: string;
   emptyDescription: string;
   subtitleMode: SubtitleMode;
+  isLoading?: boolean;
   showOpenFavoritesAction?: boolean;
   showOpenQueueAction?: boolean;
   searchBarPlaceholder?: string;
@@ -227,6 +228,7 @@ export function PaperListView({
   emptyTitle,
   emptyDescription,
   subtitleMode,
+  isLoading: externalIsLoading = false,
   showOpenFavoritesAction = true,
   showOpenQueueAction = true,
   searchBarPlaceholder,
@@ -258,7 +260,7 @@ export function PaperListView({
   return (
     <List
       isShowingDetail
-      isLoading={isLoading || isQueueLoading || isReadLoading}
+      isLoading={externalIsLoading || isLoading || isQueueLoading || isReadLoading}
       searchBarPlaceholder={searchBarPlaceholder}
       onSearchTextChange={onSearchTextChange}
       onSelectionChange={setSelectedItemId}

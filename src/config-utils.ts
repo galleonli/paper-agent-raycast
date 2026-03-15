@@ -120,3 +120,38 @@ export function withEffectiveConfigPath<T>(
     }
   }
 }
+
+export async function withEffectiveConfigPathAsync<T>(
+  configPath: string,
+  prefPaperDir: string,
+  runner: (effectiveConfigPath: string) => Promise<T>,
+): Promise<T> {
+  const preferred = prefPaperDir.trim();
+  if (!preferred) {
+    throw new Error("Paper directory is required in extension Preferences.");
+  }
+
+  const config = readConfigObject(configPath);
+  if (!config) {
+    throw new Error("Config file is missing or invalid.");
+  }
+
+  let tempConfigPath = "";
+  try {
+    const merged = applyPaperDirOverride(config, preferred);
+    tempConfigPath = path.join(
+      os.tmpdir(),
+      `paper-agent-raycast-${Date.now()}-${Math.random().toString(36).slice(2, 10)}.yaml`,
+    );
+    fs.writeFileSync(tempConfigPath, yaml.dump(merged), "utf-8");
+    return await runner(tempConfigPath);
+  } finally {
+    if (tempConfigPath && fs.existsSync(tempConfigPath)) {
+      try {
+        fs.unlinkSync(tempConfigPath);
+      } catch {
+        // ignore cleanup errors
+      }
+    }
+  }
+}
