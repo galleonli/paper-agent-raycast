@@ -92,11 +92,30 @@ npm run build  # Compile extension
 
 ## Troubleshooting
 
-- **Today / Recent / Search show nothing** — Ensure **Config file path** and **Paper directory** are set and the core is working. Run the pipeline at least once so `library/` has JSON files.
-- **Run Paper Agent fails or “Core not found”** — Check that the config path points to a real `config.yaml`, that the Python path (or default `.venv`) exists, and that `python -m paper_agent run --help` works in that environment.
-- **Daily schedule not running** — After changing Preferences, run **Install Daily Schedule** again so the launchd job picks up the new config. Use **Check Run Status** to see install state and last run.
+### Core detection and preferences
 
-For core-side docs (config.yaml, Preferences vs config, scheduling, Google Scholar, output artifacts, troubleshooting), see the [Paper Agent core README](https://github.com/galleonli/paper-agent).
+- **Core not found / Run Paper Agent fails immediately** — Verify **Config file path** points to a real `config.yaml`, and **Python executable** points to a valid interpreter (or leave empty to use `<config_dir>/.venv/bin/python3`).
+- **Quick verification command** — In the core repo root, run `python -m paper_agent run --help`. If this fails, fix the core environment first.
+- **Paper directory mismatch** — Ensure Raycast **Paper directory** matches the core runtime output location you expect; list/search commands read from that location.
+
+### Empty lists (Today / Recent / Search)
+
+- **No data yet** — Run the core pipeline at least once so `library/` has JSON entries.
+- **Recent is count-based** — **Recent Papers** is controlled by **Recent papers limit** (not by a day window). Increase the limit in Preferences if needed.
+- **Source checks** — If data still looks empty, use core CLI checks: `python -m paper_agent today --json --config config.yaml` and `python -m paper_agent list --json --limit 20 --config config.yaml`.
+
+### Run and schedule behavior
+
+- **Run Paper Agent shows only “Run started in background”** — This is expected: manual runs are detached. Use **Check Run Status** and open run logs from there to inspect final success/failure.
+- **Daily schedule not running** — Re-run **Install Daily Schedule** after changing Preferences that affect runtime config/secrets. Then use **Check Run Status** to confirm install state and latest run metadata.
+- **Launchd scope** — Daily schedule commands are macOS `launchd` automation only.
+
+### Scholar Inbox via Raycast
+
+- **Enabled but no Scholar items** — Confirm Scholar Preferences are filled (`provider`, `imap host`, `imap user`, password or password env var name), then run again.
+- **Credentials confusion** — If you set **Scholar IMAP password** in Preferences, Raycast injects it for runs. If left empty, ensure the configured env var exists in the execution environment.
+
+For core-side troubleshooting (config schema, diagnostics, CLI/cron, Scholar provider behavior, output artifacts), see the [Paper Agent core Troubleshooting](https://github.com/galleonli/paper-agent#troubleshooting).
 
 ---
 
