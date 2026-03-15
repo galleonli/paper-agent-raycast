@@ -78,8 +78,8 @@ declare namespace Preferences {
   export type InstallDailySchedule = ExtensionPreferences & {}
   /** Preferences accessible in the `remove-daily-schedule` command */
   export type RemoveDailySchedule = ExtensionPreferences & {}
-  /** Preferences accessible in the `daily-schedule-status` command */
-  export type DailyScheduleStatus = ExtensionPreferences & {}
+  /** Preferences accessible in the `check-run-status` command */
+  export type CheckRunStatus = ExtensionPreferences & {}
   /** Preferences accessible in the `open-paper-repo` command */
   export type OpenPaperRepo = ExtensionPreferences & {}
 }
@@ -101,8 +101,8 @@ declare namespace Arguments {
   export type InstallDailySchedule = {}
   /** Arguments passed to the `remove-daily-schedule` command */
   export type RemoveDailySchedule = {}
-  /** Arguments passed to the `daily-schedule-status` command */
-  export type DailyScheduleStatus = {}
+  /** Arguments passed to the `check-run-status` command */
+  export type CheckRunStatus = {}
   /** Arguments passed to the `open-paper-repo` command */
   export type OpenPaperRepo = {}
 }

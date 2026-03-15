@@ -285,10 +285,10 @@
       "mode": "no-view"
     },
     {
-      "name": "daily-schedule-status",
-      "title": "Daily Schedule Status",
-      "subtitle": "Check today's scheduled run",
-      "description": "Shows whether the daily 04:00 launchd job is installed and whether today's scheduled run succeeded, failed, or was skipped.",
+      "name": "check-run-status",
+      "title": "Check Run Status",
+      "subtitle": "Automatic and manual runs",
+      "description": "Shows run status for both scheduled (launchd) and manual runs: whether the daily schedule is installed, today's result, last successful day, and the most recent run metadata with actions to open log or state directory.",
       "mode": "view"
     },
     {
