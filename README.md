@@ -9,7 +9,7 @@ A [Raycast](https://www.raycast.com/) extension for the [Paper Agent](https://gi
 ## Requirements
 
 - **Raycast** (macOS)
-- **Paper Agent core** — cloned repo with valid `config.yaml`, `.venv`, and `paper_agent` installed
+- **Paper Agent core** — cloned repo with valid `config.yaml` and `paper_agent` installed (default Python is `<config_dir>/.venv/bin/python3`, or set **Python executable** in Preferences)
 - **Paper directory** — a folder where the core writes notes, daily/weekly digests, and `library/` (JSON outputs)
 
 ---
