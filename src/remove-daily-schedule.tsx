@@ -2,7 +2,7 @@ import { popToRoot, showToast, Toast } from "@raycast/api";
 import * as fs from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { getSchedulePaths } from "./run-utils";
+import { DAILY_SCHEDULE_LABEL, getSchedulePaths } from "./run-utils";
 
 const execFileAsync = promisify(execFile);
 
@@ -11,10 +11,20 @@ async function unloadLaunchAgent(plistPath: string): Promise<void> {
   if (uid === undefined) {
     throw new Error("launchd removal is only supported on macOS.");
   }
+  const target = `gui/${uid}`;
+
+  // Try unloading by service target first so removal still works
+  // even if the plist file was manually deleted.
+  try {
+    await execFileAsync("/bin/launchctl", ["bootout", `${target}/${DAILY_SCHEDULE_LABEL}`]);
+  } catch {
+    // Ignore unload failures if the service is not active.
+  }
+
   if (!fs.existsSync(plistPath)) {
     return;
   }
-  const target = `gui/${uid}`;
+
   try {
     await execFileAsync("/bin/launchctl", ["bootout", target, plistPath]);
   } catch {

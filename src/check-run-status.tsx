@@ -1,7 +1,8 @@
 import { Action, ActionPanel, Detail, getPreferenceValues, open } from "@raycast/api";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { getSchedulePaths } from "./run-utils";
+import { execFileSync } from "node:child_process";
+import { DAILY_SCHEDULE_LABEL, getSchedulePaths } from "./run-utils";
 
 type LastRunStatus = {
   mode?: string;
@@ -41,6 +42,19 @@ function readLastSuccessDate(lastSuccessPath: string): string | undefined {
   return value || undefined;
 }
 
+function isLaunchAgentLoaded(label: string): boolean {
+  const uid = process.getuid?.();
+  if (uid === undefined) {
+    return false;
+  }
+  try {
+    execFileSync("/bin/launchctl", ["print", `gui/${uid}/${label}`], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function formatReason(reason: string | undefined): string {
   if (!reason) return "None";
   return reason.replace(/-/g, " ");
@@ -65,7 +79,9 @@ function computeTodaySummary(lastSuccessDate: string | undefined, lastRun: LastR
 export default function Command() {
   const prefs = getPreferenceValues<Preferences.CheckRunStatus>();
   const schedulePaths = getSchedulePaths();
-  const installed = fs.existsSync(schedulePaths.plistPath);
+  const plistExists = fs.existsSync(schedulePaths.plistPath);
+  const launchAgentLoaded = isLaunchAgentLoaded(DAILY_SCHEDULE_LABEL);
+  const installed = launchAgentLoaded;
   const lastRun = readLastRunStatus(schedulePaths.statusPath);
   const lastSuccessDate = readLastSuccessDate(schedulePaths.lastSuccessPath);
   const todaySummary = computeTodaySummary(lastSuccessDate, lastRun);
@@ -80,6 +96,8 @@ export default function Command() {
     "## Schedule",
     "",
     `- Installed: ${installed ? "Yes" : "No"}`,
+    `- LaunchAgent plist present: ${plistExists ? "Yes" : "No"}`,
+    `- Loaded in launchd: ${launchAgentLoaded ? "Yes" : "No"}`,
     `- Scheduled time: 04:00 local time`,
     `- Today's result: ${todaySummary}`,
     `- Last successful day: ${lastSuccessDate ?? "Never"}`,

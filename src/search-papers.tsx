@@ -1,9 +1,9 @@
 import { Action, ActionPanel, List, getPreferenceValues, open } from "@raycast/api";
 import * as path from "node:path";
-import { execFileSync } from "node:child_process";
-import { useEffect, useMemo, useState } from "react";
+import { execFile } from "node:child_process";
+import { useEffect, useState } from "react";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
-import { withEffectiveConfigPath } from "./config-utils";
+import { withEffectiveConfigPathAsync } from "./config-utils";
 import { type Paper, parseCliPapers } from "./paper-utils";
 import { PaperListView } from "./paper-list";
 
@@ -20,28 +20,42 @@ const PYTHON_BIN =
     ? prefs.pythonPath
     : path.join(AGENT_ROOT, ".venv", "bin", "python3");
 
-function loadSearchResults(query: string): Paper[] {
+const SEARCH_DEBOUNCE_MS = 250;
+
+async function loadSearchResults(query: string): Promise<Paper[]> {
   if (!HAS_CONFIG || !HAS_PAPER_DIR) {
     return [];
   }
-  let rawJson = "";
+
   try {
-    rawJson = withEffectiveConfigPath(CONFIG_PATH, PREF_PAPER_DIR, (effectiveConfigPath) =>
-      execFileSync(
-        PYTHON_BIN,
-        ["-m", "paper_agent", "search", "--query", query, "--json", "--config", effectiveConfigPath],
-        { cwd: AGENT_ROOT, encoding: "utf-8" },
-      ),
+    const rawJson = await withEffectiveConfigPathAsync(
+      CONFIG_PATH,
+      PREF_PAPER_DIR,
+      (effectiveConfigPath) =>
+        new Promise<string>((resolve, reject) => {
+          execFile(
+            PYTHON_BIN,
+            ["-m", "paper_agent", "search", "--query", query, "--json", "--config", effectiveConfigPath],
+            { cwd: AGENT_ROOT, encoding: "utf-8" },
+            (error, stdout) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(stdout);
+            },
+          );
+        }),
     );
+
+    return parseCliPapers(rawJson, {
+      paperDir: PAPER_DIR,
+      libraryDir: LIBRARY_DIR,
+      fallbackDate: "unknown",
+    });
   } catch {
     return [];
   }
-
-  return parseCliPapers(rawJson, {
-    paperDir: PAPER_DIR,
-    libraryDir: LIBRARY_DIR,
-    fallbackDate: "unknown",
-  });
 }
 
 function CoreNotFoundEmptyView() {
@@ -61,6 +75,9 @@ function CoreNotFoundEmptyView() {
 
 export default function Command() {
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [coreOk, setCoreOk] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -72,10 +89,41 @@ export default function Command() {
     }).then((r) => setCoreOk(r.ok));
   }, []);
 
-  const papers = useMemo(
-    () => (HAS_CONFIG && HAS_PAPER_DIR && coreOk ? loadSearchResults(searchText) : []),
-    [searchText, coreOk],
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  useEffect(() => {
+    if (!HAS_CONFIG || !HAS_PAPER_DIR || !coreOk) {
+      setPapers([]);
+      setIsSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsSearching(true);
+
+    void loadSearchResults(debouncedSearchText)
+      .then((results) => {
+        if (cancelled) return;
+        setPapers(results);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPapers([]);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsSearching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearchText, coreOk]);
 
   if (!HAS_CONFIG || !HAS_PAPER_DIR) {
     return (
@@ -119,6 +167,7 @@ export default function Command() {
   return (
     <PaperListView
       papers={papers}
+      isLoading={isSearching}
       emptyTitle="No papers or CLI failed"
       emptyDescription="Run the pipeline at least once, or check Config path and Paper directory."
       subtitleMode="date-and-authors"
