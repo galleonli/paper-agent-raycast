@@ -2,7 +2,7 @@ import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast,
 import * as path from "node:path";
 import { useEffect, useState } from "react";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
-import { buildRunEnv, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
+import { buildRunEnv, getSchedulePaths, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
 
 const prefs = getPreferenceValues<Preferences.RunPipeline>();
 
@@ -48,17 +48,31 @@ function RunPipelineView() {
 
       setStatus("running");
       try {
-        const prepared = prepareRun(prefs);
+        const schedulePaths = getSchedulePaths();
+        const prepared = prepareRun(prefs, {
+          // Detached manual runs must not depend on an auto-cleaned temp config file.
+          persistConfigPath: path.join(schedulePaths.stateDir, "manual-run-config.yaml"),
+        });
         cleanup = prepared.cleanup;
-        const { success, stderr, stdout } = await runViaRunner({
+        const result = await runViaRunner({
           agentRoot: prepared.agentRoot,
           pythonBin: prepared.pythonBin,
           configPath: prepared.configPath,
           env: buildRunEnv(prefs),
           mode: "manual",
+          detach: true,
         });
         if (cancelled) return;
+        const { success, stderr, stdout, detached } = result;
         if (success) {
+          if (detached) {
+            await showToast({
+              style: Toast.Style.Success,
+              title: "Run started in background",
+              message: "Safe to close this window.",
+            });
+            return;
+          }
           const skipMessage = parseSkipMessage([stdout ?? "", stderr ?? ""].join("\n"));
           if (skipMessage) {
             await showToast({
@@ -123,7 +137,17 @@ function RunPipelineView() {
     );
   }
 
-  return <Detail isLoading={true} markdown="Running Paper Agent…" navigationTitle="Run Paper Agent" />;
+  return (
+    <Detail
+      isLoading={true}
+      markdown={`Running Paper Agent…
+
+**You can safely close this window** — the run continues in the background.
+
+Recommend **Install Daily Schedule** for automatic daily runs.`}
+      navigationTitle="Run Paper Agent"
+    />
+  );
 }
 
 export default function Command() {

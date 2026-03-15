@@ -14,6 +14,8 @@ export type RunResult = {
   success: boolean;
   stderr?: string;
   stdout?: string;
+  /** True when the process was started detached (run continues after extension unloads). */
+  detached?: boolean;
 };
 
 export type PreparedRun = {
@@ -300,6 +302,8 @@ export function runViaRunner(options: {
   stateDir?: string;
   logDir?: string;
   envFilePath?: string;
+  /** If true, spawn detached so the run continues after the extension unloads; stdout/stderr are not captured. */
+  detach?: boolean;
 }): Promise<RunResult> {
   return new Promise((resolve) => {
     let stderr = "";
@@ -328,6 +332,34 @@ export function runViaRunner(options: {
     }
     if (options.envFilePath) {
       args.push("--env-file", options.envFilePath);
+    }
+
+    if (options.detach) {
+      let settled = false;
+      const settle = (result: RunResult) => {
+        if (settled) return;
+        settled = true;
+        resolve(result);
+      };
+
+      try {
+        const proc = spawn("/bin/zsh", args, {
+          cwd: options.agentRoot,
+          env: options.env,
+          detached: true,
+          stdio: "ignore",
+        });
+        proc.once("error", () => {
+          settle({ success: false, stderr: "Failed to start process" });
+        });
+        proc.once("spawn", () => {
+          proc.unref();
+          settle({ success: true, detached: true });
+        });
+      } catch {
+        settle({ success: false, stderr: "Failed to start process" });
+      }
+      return;
     }
 
     const proc = spawn("/bin/zsh", args, {
