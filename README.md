@@ -1,4 +1,4 @@
-<p align="center" style="font-size: 1.25em;"><img src="assets/extension-icon.png" width="32" height="32" alt="" style="vertical-align: middle;" /> <strong>Paper Agent Raycast Extension</strong></p>
+<h1 align="center"><img src="assets/extension-icon.png" width="23" height="23" alt="" style="vertical-align: middle;" /> Paper Agent Raycast Extension</h1>
 
 A [Raycast](https://www.raycast.com/) extension for the [Paper Agent](https://github.com/galleonli/paper-agent) workflow: run the pipeline, browse today’s and recent papers, search your library, manage favorites and a reading queue, and schedule daily runs on macOS.
 
