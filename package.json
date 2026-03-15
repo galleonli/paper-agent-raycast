@@ -323,6 +323,13 @@
       "subtitle": "Open paper directory in Finder",
       "description": "Opens the Paper directory folder from Preferences in Finder.",
       "mode": "no-view"
+    },
+    {
+      "name": "open-config-directory",
+      "title": "Open Config Directory",
+      "subtitle": "Open folder containing config.yaml",
+      "description": "Opens the folder that contains your config.yaml (the core repo root) in Finder.",
+      "mode": "no-view"
     }
   ],
   "dependencies": {

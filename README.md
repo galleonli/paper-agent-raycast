@@ -34,4 +34,9 @@ In **Raycast → Extensions → Paper Agent → Preferences**, set:
 
 ### Core not found
 
-If the extension cannot detect the core (wrong paths, missing config, or `paper_agent` not runnable), it shows **Core not found** with a link to the core repo and a **Copy bootstrap command** action. Paste the copied command into a terminal to install the core, then set Preferences again.
+If the extension cannot detect the core (wrong paths, missing config, or `paper_agent` not runnable), it shows **Core not found** with a link to the core repo and a **Copy bootstrap command** action. Paste the copied command into a terminal to install the core, then set Preferences again. If you have already set **Config file path**, an **Open Config Directory** action is also shown to open the folder containing `config.yaml` in Finder.
+
+### Opening folders
+
+- **Open Paper Directory** — opens the configured paper directory (where notes and `library/` live).
+- **Open Config Directory** — opens the folder that contains your `config.yaml` (the core repo root). Also available as an action in the **Run Paper Agent** “Core not found” view and in **Check Run Status** when Config file path is set.

@@ -82,6 +82,8 @@ declare namespace Preferences {
   export type CheckRunStatus = ExtensionPreferences & {}
   /** Preferences accessible in the `open-paper-repo` command */
   export type OpenPaperRepo = ExtensionPreferences & {}
+  /** Preferences accessible in the `open-config-directory` command */
+  export type OpenConfigDirectory = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -105,5 +107,7 @@ declare namespace Arguments {
   export type CheckRunStatus = {}
   /** Arguments passed to the `open-paper-repo` command */
   export type OpenPaperRepo = {}
+  /** Arguments passed to the `open-config-directory` command */
+  export type OpenConfigDirectory = {}
 }
 

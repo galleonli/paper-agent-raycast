@@ -1,4 +1,5 @@
 import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast, Toast, open } from "@raycast/api";
+import * as path from "node:path";
 import { useEffect, useState } from "react";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import { buildRunEnv, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
@@ -105,6 +106,8 @@ function RunPipelineView() {
   }
 
   if (status === "core-missing") {
+    const configPath = prefs.configPath?.trim() ?? "";
+    const configDir = configPath ? path.dirname(configPath) : "";
     return (
       <Detail
         markdown={coreNotFoundMarkdown}
@@ -112,6 +115,7 @@ function RunPipelineView() {
         actions={
           <ActionPanel>
             <Action.CopyToClipboard title="Copy Bootstrap Command" content={getBootstrapCopyText()} />
+            {configDir ? <Action title="Open Config Directory" onAction={() => open(configDir)} /> : null}
             <Action title="Open GitHub" onAction={() => open(CORE_INSTALL_URL)} />
           </ActionPanel>
         }

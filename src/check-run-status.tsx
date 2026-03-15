@@ -1,5 +1,6 @@
-import { Action, ActionPanel, Detail, open } from "@raycast/api";
+import { Action, ActionPanel, Detail, getPreferenceValues, open } from "@raycast/api";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { getSchedulePaths } from "./run-utils";
 
 type LastRunStatus = {
@@ -62,11 +63,14 @@ function computeTodaySummary(lastSuccessDate: string | undefined, lastRun: LastR
 }
 
 export default function Command() {
+  const prefs = getPreferenceValues<Preferences.CheckRunStatus>();
   const schedulePaths = getSchedulePaths();
   const installed = fs.existsSync(schedulePaths.plistPath);
   const lastRun = readLastRunStatus(schedulePaths.statusPath);
   const lastSuccessDate = readLastSuccessDate(schedulePaths.lastSuccessPath);
   const todaySummary = computeTodaySummary(lastSuccessDate, lastRun);
+  const configPath = prefs.configPath?.trim() ?? "";
+  const configDir = configPath ? path.dirname(configPath) : "";
 
   const markdown = [
     "# Run Status",
@@ -104,6 +108,7 @@ export default function Command() {
       navigationTitle="Run Status"
       actions={
         <ActionPanel>
+          {configDir ? <Action title="Open Config Directory" onAction={() => open(configDir)} /> : null}
           <Action title="Open Log Directory" onAction={() => open(schedulePaths.logDir)} />
           {lastRun?.log_path ? (
             <Action title="Open Last Run Log" onAction={() => open(lastRun.log_path as string)} />
