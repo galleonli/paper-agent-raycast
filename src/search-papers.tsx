@@ -1,7 +1,8 @@
-import { List, getPreferenceValues } from "@raycast/api";
+import { Action, ActionPanel, List, getPreferenceValues, Clipboard, open } from "@raycast/api";
 import * as path from "node:path";
 import { execFileSync } from "node:child_process";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import { withEffectiveConfigPath } from "./config-utils";
 import { type Paper, parseCliPapers } from "./paper-utils";
 import { PaperListView } from "./paper-list";
@@ -43,9 +44,35 @@ function loadSearchResults(query: string): Paper[] {
   });
 }
 
+function CoreNotFoundEmptyView() {
+  return (
+    <List.EmptyView
+      title="Core not found"
+      description={`Install: ${CORE_INSTALL_URL} — or run the bootstrap command (Copy action).`}
+      actions={
+        <ActionPanel>
+          <Action title="Copy Bootstrap Command" onAction={() => Clipboard.copy(getBootstrapCopyText())} />
+          <Action title="Open GitHub" onAction={() => open(CORE_INSTALL_URL)} />
+        </ActionPanel>
+      }
+    />
+  );
+}
+
 export default function Command() {
   const [searchText, setSearchText] = useState("");
-  const papers = useMemo(() => (HAS_CONFIG && HAS_PAPER_DIR ? loadSearchResults(searchText) : []), [searchText]);
+  const [coreOk, setCoreOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!HAS_CONFIG || !HAS_PAPER_DIR) return;
+    checkCoreAvailable({
+      configPath: prefs.configPath,
+      paperDir: prefs.paperDir,
+      pythonPath: prefs.pythonPath,
+    }).then((r) => setCoreOk(r.ok));
+  }, []);
+
+  const papers = useMemo(() => (HAS_CONFIG && HAS_PAPER_DIR && coreOk ? loadSearchResults(searchText) : []), [searchText, coreOk]);
 
   if (!HAS_CONFIG || !HAS_PAPER_DIR) {
     return (
@@ -62,11 +89,35 @@ export default function Command() {
     );
   }
 
+  if (coreOk === null) {
+    return (
+      <List
+        isShowingDetail
+        searchBarPlaceholder="Search by title, authors, abstract, date..."
+        onSearchTextChange={setSearchText}
+      >
+        <List.EmptyView title="Checking core…" description="Verifying Paper Agent is installed." />
+      </List>
+    );
+  }
+
+  if (!coreOk) {
+    return (
+      <List
+        isShowingDetail
+        searchBarPlaceholder="Search by title, authors, abstract, date..."
+        onSearchTextChange={setSearchText}
+      >
+        <CoreNotFoundEmptyView />
+      </List>
+    );
+  }
+
   return (
     <PaperListView
       papers={papers}
       emptyTitle="No papers or CLI failed"
-      emptyDescription="Check: Config path = full path to config.yaml; Paper directory = paper repo root; .venv/bin/python3 has paper_agent; run the pipeline at least once."
+      emptyDescription="Run the pipeline at least once, or check Config path and Paper directory."
       subtitleMode="date-and-authors"
       searchBarPlaceholder="Search by title, authors, abstract, date..."
       onSearchTextChange={setSearchText}

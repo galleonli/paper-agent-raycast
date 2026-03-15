@@ -1,5 +1,6 @@
-import { Detail, getPreferenceValues, popToRoot, showToast, Toast } from "@raycast/api";
-import { useEffect } from "react";
+import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast, Toast, Clipboard, open } from "@raycast/api";
+import { useEffect, useState } from "react";
+import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import { buildRunEnv, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
 
 const prefs = getPreferenceValues<Preferences.RunPipeline>();
@@ -17,11 +18,34 @@ function parseSkipMessage(output: string): string | undefined {
   return undefined;
 }
 
+const coreNotFoundMarkdown = `# Core not found
+
+Install Paper Agent core first, then set **Config file path** and **Paper directory** in extension Preferences.
+
+- **Install:** [${CORE_INSTALL_URL}](${CORE_INSTALL_URL})
+- Or run the **bootstrap command** (use the Copy action below), then configure Preferences.
+`;
+
 function RunPipelineView() {
+  const [status, setStatus] = useState<"checking" | "core-missing" | "running">("checking");
+
   useEffect(() => {
     let cancelled = false;
     let cleanup: (() => void) | null = null;
+
     const run = async () => {
+      const core = await checkCoreAvailable({
+        configPath: prefs.configPath,
+        paperDir: prefs.paperDir,
+        pythonPath: prefs.pythonPath,
+      });
+      if (cancelled) return;
+      if (!core.ok) {
+        setStatus("core-missing");
+        return;
+      }
+
+      setStatus("running");
       try {
         const prepared = prepareRun(prefs);
         cleanup = prepared.cleanup;
@@ -33,27 +57,25 @@ function RunPipelineView() {
           mode: "manual",
         });
         if (cancelled) return;
-        if (!cancelled) {
-          if (success) {
-            const skipMessage = parseSkipMessage([stdout ?? "", stderr ?? ""].join("\n"));
-            if (skipMessage) {
-              await showToast({
-                style: Toast.Style.Failure,
-                title: "Paper Agent skipped",
-                message: skipMessage,
-              });
-              return;
-            }
-            const count = parseProcessedCount(stdout ?? "");
-            const message = count !== undefined ? `${count} new paper(s)` : undefined;
-            await showToast({ style: Toast.Style.Success, title: "Paper Agent finished", message });
-          } else {
+        if (success) {
+          const skipMessage = parseSkipMessage([stdout ?? "", stderr ?? ""].join("\n"));
+          if (skipMessage) {
             await showToast({
               style: Toast.Style.Failure,
-              title: "Paper Agent failed",
-              message: stderr ? stderr.slice(0, 200) : undefined,
+              title: "Paper Agent skipped",
+              message: skipMessage,
             });
+            return;
           }
+          const count = parseProcessedCount(stdout ?? "");
+          const message = count !== undefined ? `${count} new paper(s)` : undefined;
+          await showToast({ style: Toast.Style.Success, title: "Paper Agent finished", message });
+        } else {
+          await showToast({
+            style: Toast.Style.Failure,
+            title: "Paper Agent failed",
+            message: stderr ? stderr.slice(0, 200) : undefined,
+          });
         }
       } catch (err) {
         if (!cancelled) {
@@ -77,6 +99,27 @@ function RunPipelineView() {
       cancelled = true;
     };
   }, []);
+
+  if (status === "checking") {
+    return (
+      <Detail isLoading={true} markdown="Checking Paper Agent core…" navigationTitle="Run Paper Agent" />
+    );
+  }
+
+  if (status === "core-missing") {
+    return (
+      <Detail
+        markdown={coreNotFoundMarkdown}
+        navigationTitle="Run Paper Agent"
+        actions={
+          <ActionPanel>
+            <Action title="Copy Bootstrap Command" onAction={() => Clipboard.copy(getBootstrapCopyText())} />
+            <Action title="Open GitHub" onAction={() => open(CORE_INSTALL_URL)} />
+          </ActionPanel>
+        }
+      />
+    );
+  }
 
   return <Detail isLoading={true} markdown="Running Paper Agent…" navigationTitle="Run Paper Agent" />;
 }

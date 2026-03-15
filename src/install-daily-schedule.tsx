@@ -1,8 +1,9 @@
-import { getPreferenceValues, popToRoot, showToast, Toast } from "@raycast/api";
+import { getPreferenceValues, popToRoot, showToast, Toast, Clipboard } from "@raycast/api";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import {
   buildScheduleSecrets,
   DAILY_SCHEDULE_HOUR,
@@ -81,6 +82,22 @@ async function reloadLaunchAgent(plistPath: string): Promise<void> {
 export default async function Command() {
   const prefs = getPreferenceValues<Preferences.RunPipeline>();
   let cleanup: (() => void) | null = null;
+
+  const core = await checkCoreAvailable({
+    configPath: prefs.configPath,
+    paperDir: prefs.paperDir,
+    pythonPath: prefs.pythonPath,
+  });
+  if (!core.ok) {
+    await Clipboard.copy(getBootstrapCopyText());
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Core not found",
+      message: `Install: ${CORE_INSTALL_URL}. Bootstrap command copied to clipboard.`,
+    });
+    await popToRoot({ clearSearchBar: true });
+    return;
+  }
 
   try {
     const schedulePaths = getSchedulePaths();
