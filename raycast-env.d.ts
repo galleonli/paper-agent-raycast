@@ -8,53 +8,53 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** Config file path - Path to the Paper Agent core config.yaml. */
+  /** Config File Path - Path to the Paper Agent core config.yaml. */
   "configPath": string,
-  /** Paper directory - Root directory for papers (daily digest and notes). Library is stored under paper_dir/library. Maps to delivery.paper_dir. */
+  /** Paper Directory - Root directory for papers (daily digest and notes). Library is stored under paper_dir/library. Maps to delivery.paper_dir. */
   "paperDir": string,
-  /** Python executable - Optional override for Python binary (defaults to .venv/bin/python3 in the Paper Agent repo). */
+  /** Python Executable - Optional override for Python binary (defaults to .venv/bin/python3 in the Paper Agent repo). */
   "pythonPath": string,
-  /** Recent papers limit - Maximum number of papers shown in Recent Papers (used as --limit for the list CLI). */
+  /** Recent Papers Limit - Maximum number of papers shown in Recent Papers (used as --limit for the list CLI). */
   "recentLimit": string,
-  /** Max papers per day - Maps to direction.max_papers_per_day in config.yaml. */
+  /** Max Papers Per Day - Maps to direction.max_papers_per_day in config.yaml. */
   "maxPapersPerDay": string,
-  /** Lookback days - Maps to direction.lookback_days (catch-up window). */
+  /** Lookback Days - Maps to direction.lookback_days (catch-up window). */
   "lookbackDays": string,
-  /** Required keywords - OR match: at least one keyword must appear in title or abstract (not all). Comma-separated; maps to direction.include_keywords. */
+  /** Required Keywords - OR match: at least one keyword must appear in title or abstract (not all). Comma-separated; maps to direction.include_keywords. */
   "keyphrases": string,
-  /** Allow categories - Comma-separated arXiv categories to include (maps to direction.allow_categories). */
+  /** Allow Categories - Comma-separated arXiv categories to include (maps to direction.allow_categories). */
   "allowCategories": string,
-  /** Deny categories - Comma-separated categories to exclude (maps to direction.deny_categories). */
+  /** Deny Categories - Comma-separated categories to exclude (maps to direction.deny_categories). */
   "denyCategories": string,
-  /** Exclude keywords - Comma-separated keywords; papers matching these are excluded (maps to direction.exclude_keywords). */
+  /** Exclude Keywords - Comma-separated keywords; papers matching these are excluded (maps to direction.exclude_keywords). */
   "excludeKeywords": string,
-  /** Discovery policy - Off: select by required-keyword match only (title first, then abstract). No scoring policy. */
+  /** Discovery Policy - Off: select by required-keyword match only (title first, then abstract). No scoring policy. */
   "policyType": "off",
-  /** Enable LLM research summary - When on, the three options below are used to generate research summaries. When off, they are ignored. */
+  /** Enable LLM Research Summary - When on, the three options below are used to generate research summaries. When off, they are ignored. */
   "summarizeEnabled": boolean,
-  /** Summary provider - Only used when "Enable LLM research summary" is on. LLM provider (e.g. openai). */
+  /** Summary Provider - Only used when "Enable LLM research summary" is on. LLM provider (e.g. openai). */
   "summarizeProvider": string,
-  /** Summary model - Only used when "Enable LLM research summary" is on. Model name (e.g. gpt-4o-mini). */
+  /** Summary Model - Only used when "Enable LLM research summary" is on. Model name (e.g. gpt-4o-mini). */
   "summarizeModel": string,
-  /** Summary language - Only used when "Enable LLM research summary" is on. Maps to summarize.language. */
+  /** Summary Language - Only used when "Enable LLM research summary" is on. Maps to summarize.language. */
   "summarizeLanguage": "en" | "zh" | "ja" | "de",
   /** OpenAI API Key - Optional. Used for LLM summaries when set. Leave empty to use OPENAI_API_KEY from your environment. */
   "openaiApiKey": string,
   /** Enable Scholar Inbox - Toggle Google Scholar Alerts (email only). */
   "scholarEnabled": boolean,
-  /** Scholar email provider - Email source for extension runs: imap or gmail. */
+  /** Scholar Email Provider - Email source for extension runs: imap or gmail. */
   "scholarProvider": string,
-  /** Scholar IMAP host - IMAP host for Scholar Alerts (e.g. imap.gmail.com). */
+  /** Scholar IMAP Host - IMAP host for Scholar Alerts (e.g. imap.gmail.com). */
   "scholarImapHost": string,
-  /** Scholar IMAP user - IMAP user / email for Scholar Alerts. */
+  /** Scholar IMAP User - IMAP user / email for Scholar Alerts. */
   "scholarImapUser": string,
-  /** Scholar IMAP password env var - Environment variable name for IMAP password (e.g. IMAP_PASSWORD). */
+  /** Scholar IMAP Password Env Var - Environment variable name for IMAP password (e.g. IMAP_PASSWORD). */
   "scholarImapPasswordEnv": string,
-  /** Scholar IMAP password - Optional. If set, used as the IMAP password (env var name above). All whitespace is removed, so Google app passwords work whether pasted with or without spaces. Leave empty to use the value from your environment. */
+  /** Scholar IMAP Password - Optional. If set, used as the IMAP password (env var name above). All whitespace is removed, so Google app passwords work whether pasted with or without spaces. Leave empty to use the value from your environment. */
   "scholarImapPassword": string,
-  /** Scholar Gmail label - Gmail label/mailbox to read (e.g. scholar-alerts). */
+  /** Scholar Gmail Label - Gmail label/mailbox to read (e.g. scholar-alerts). */
   "scholarGmailLabel": string,
-  /** Scholar from addresses - Comma-separated sender addresses to filter (e.g. scholaralerts-noreply@google.com). Empty = no filter. */
+  /** Scholar From Addresses - Comma-separated sender addresses to filter (e.g. scholaralerts-noreply@google.com). Empty = no filter. */
   "scholarFromAddresses": string
 }
 
