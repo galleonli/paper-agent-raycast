@@ -5,6 +5,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
 import {
+  isValidEnvVarName,
   buildScheduleSecrets,
   DAILY_SCHEDULE_HOUR,
   DAILY_SCHEDULE_LABEL,
@@ -116,7 +117,12 @@ export default async function Command() {
     fs.mkdirSync(path.dirname(schedulePaths.plistPath), { recursive: true });
 
     const secrets = buildScheduleSecrets(prefs);
-    const envLines = Object.entries(secrets).map(([key, value]) => `export ${key}=${shellQuote(value)}`);
+    const envLines = Object.entries(secrets).map(([key, value]) => {
+      if (!isValidEnvVarName(key)) {
+        throw new Error(`Invalid environment variable name '${key}'. Use [A-Za-z_][A-Za-z0-9_]*.`);
+      }
+      return `export ${key}=${shellQuote(value)}`;
+    });
     fs.writeFileSync(schedulePaths.envFilePath, `${envLines.join("\n")}\n`, { encoding: "utf-8", mode: 0o600 });
     fs.chmodSync(schedulePaths.envFilePath, 0o600);
 

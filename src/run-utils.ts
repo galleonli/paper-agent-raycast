@@ -9,6 +9,7 @@ type YamlObject = Record<string, unknown>;
 
 export const DAILY_SCHEDULE_HOUR = 4;
 export const DAILY_SCHEDULE_LABEL = "com.paperagent.daily";
+const ENV_VAR_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 export type RunResult = {
   success: boolean;
@@ -74,6 +75,16 @@ export function parseRequiredPositiveInt(
 
 export function stripAllWhitespace(value: string | undefined): string {
   return (value ?? "").replace(/\s+/g, "");
+}
+
+export function isValidEnvVarName(name: string): boolean {
+  return ENV_VAR_NAME_RE.test(name);
+}
+
+export function assertValidEnvVarName(name: string, fieldName: string): void {
+  if (!isValidEnvVarName(name)) {
+    throw new Error(`${fieldName} must match [A-Za-z_][A-Za-z0-9_]*.`);
+  }
 }
 
 export function parseProcessedCount(stdout: string): number | undefined {
@@ -183,10 +194,15 @@ export function buildRunEnv(prefs: Preferences.RunPipeline): NodeJS.ProcessEnv {
   if (openaiKey) {
     env.OPENAI_API_KEY = openaiKey;
   }
-  const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
-  const imapPassword = stripAllWhitespace(prefs.scholarImapPassword);
-  if (imapPassword) {
-    env[imapEnvName] = imapPassword;
+
+  const provider = (prefs.scholarProvider?.trim() ?? "").toLowerCase();
+  if (prefs.scholarEnabled && provider === "imap") {
+    const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
+    assertValidEnvVarName(imapEnvName, "Scholar IMAP password env var");
+    const imapPassword = stripAllWhitespace(prefs.scholarImapPassword);
+    if (imapPassword) {
+      env[imapEnvName] = imapPassword;
+    }
   }
   return env;
 }
@@ -197,10 +213,15 @@ export function buildScheduleSecrets(prefs: Preferences.RunPipeline): Record<str
   if (openaiKey) {
     env.OPENAI_API_KEY = openaiKey;
   }
-  const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
-  const imapPassword = stripAllWhitespace(prefs.scholarImapPassword) || process.env[imapEnvName]?.trim() || "";
-  if (imapPassword) {
-    env[imapEnvName] = imapPassword;
+
+  const provider = (prefs.scholarProvider?.trim() ?? "").toLowerCase();
+  if (prefs.scholarEnabled && provider === "imap") {
+    const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
+    assertValidEnvVarName(imapEnvName, "Scholar IMAP password env var");
+    const imapPassword = stripAllWhitespace(prefs.scholarImapPassword) || process.env[imapEnvName]?.trim() || "";
+    if (imapPassword) {
+      env[imapEnvName] = imapPassword;
+    }
   }
   return env;
 }
@@ -262,6 +283,7 @@ export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistCo
         throw new Error("Scholar IMAP password env var is required when Scholar provider is IMAP.");
       }
       const imapEnvName = prefs.scholarImapPasswordEnv?.trim() || "IMAP_PASSWORD";
+      assertValidEnvVarName(imapEnvName, "Scholar IMAP password env var");
       const hasImapPassword = !!(stripAllWhitespace(prefs.scholarImapPassword) || process.env[imapEnvName]);
       if (!hasImapPassword) {
         throw new Error(
