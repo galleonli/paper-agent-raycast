@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import yaml from "js-yaml";
 import { applyPaperDirOverride } from "./config-utils";
 
@@ -99,6 +99,51 @@ export function getSchedulePaths(): SchedulePaths {
     lastSuccessPath: path.join(stateDir, "last_success_date"),
     statusPath: path.join(stateDir, "last_run_status.json"),
   };
+}
+
+export function getActiveRunLockPid(stateDir: string): number | undefined {
+  const pidPath = path.join(stateDir, "run.lock", "pid");
+  let raw: string;
+  try {
+    raw = fs.readFileSync(pidPath, "utf-8").trim();
+  } catch {
+    return undefined;
+  }
+  if (!/^[0-9]+$/.test(raw)) {
+    return undefined;
+  }
+
+  const pid = Number(raw);
+  if (!Number.isSafeInteger(pid) || pid < 1) {
+    return undefined;
+  }
+
+  const ps = spawnSync("/bin/ps", ["-o", "state=", "-o", "command=", "-p", String(pid)], {
+    encoding: "utf-8",
+  });
+  if (ps.error || ps.status !== 0 || typeof ps.stdout !== "string") {
+    return undefined;
+  }
+
+  const line = ps.stdout.trim();
+  if (!line) {
+    return undefined;
+  }
+
+  const match = line.match(/^(\S+)\s+(.*)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const state = match[1];
+  const command = match[2];
+  if (state.startsWith("Z")) {
+    return undefined;
+  }
+  if (!command.includes("run_paper_agent.sh")) {
+    return undefined;
+  }
+  return pid;
 }
 
 function loadBaseConfig(configPath: string): YamlObject {

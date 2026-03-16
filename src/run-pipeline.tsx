@@ -1,8 +1,15 @@
-import { Action, ActionPanel, Detail, getPreferenceValues, popToRoot, showToast, Toast, open } from "@raycast/api";
+import { Action, ActionPanel, Detail, getPreferenceValues, open, popToRoot, showToast, Toast } from "@raycast/api";
 import * as path from "node:path";
 import { useEffect, useState } from "react";
 import { checkCoreAvailable, CORE_INSTALL_URL, getBootstrapCopyText } from "./core-check";
-import { buildRunEnv, getSchedulePaths, parseProcessedCount, prepareRun, runViaRunner } from "./run-utils";
+import {
+  buildRunEnv,
+  getActiveRunLockPid,
+  getSchedulePaths,
+  parseProcessedCount,
+  prepareRun,
+  runViaRunner,
+} from "./run-utils";
 
 const prefs = getPreferenceValues<Preferences.RunPipeline>();
 
@@ -49,6 +56,15 @@ function RunPipelineView() {
       setStatus("running");
       try {
         const schedulePaths = getSchedulePaths();
+        const activePid = getActiveRunLockPid(schedulePaths.stateDir);
+        if (activePid !== undefined) {
+          await showToast({
+            style: Toast.Style.Failure,
+            title: "Paper Agent already running",
+            message: `Current run PID: ${activePid}`,
+          });
+          return;
+        }
         const prepared = prepareRun(prefs, {
           // Detached manual runs must not depend on an auto-cleaned temp config file.
           persistConfigPath: path.join(schedulePaths.stateDir, "manual-run-config.yaml"),
@@ -60,6 +76,7 @@ function RunPipelineView() {
           configPath: prepared.configPath,
           env: buildRunEnv(prefs),
           mode: "manual",
+          stateDir: schedulePaths.stateDir,
           detach: true,
         });
         if (cancelled) return;
