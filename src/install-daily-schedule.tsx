@@ -1,4 +1,4 @@
-import { getPreferenceValues, popToRoot, showToast, Toast, Clipboard } from "@raycast/api";
+import { getPreferenceValues, popToRoot, showToast, Toast } from "@raycast/api";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { execFile } from "node:child_process";
@@ -96,11 +96,10 @@ export default async function Command() {
     pythonPath: prefs.pythonPath,
   });
   if (!core.ok) {
-    await Clipboard.copy(getBootstrapCopyText());
     await showToast({
       style: Toast.Style.Failure,
       title: "Core not found",
-      message: `Install: ${CORE_INSTALL_URL}. Bootstrap command copied to clipboard.`,
+      message: `Install: ${CORE_INSTALL_URL}. Run: ${getBootstrapCopyText()}`,
     });
     await popToRoot({ clearSearchBar: true });
     return;
