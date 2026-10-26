@@ -2,13 +2,7 @@
 
 A [Raycast](https://www.raycast.com/) extension for the [Paper Agent](https://github.com/galleonli/paper-agent) workflow: run the pipeline, browse today’s and recent papers, search your library, manage favorites and a reading queue, and schedule daily runs on macOS.
 
-> [!IMPORTANT]
-> **Repository references**
-> - **Paper Agent core repo (main workflow):** https://github.com/galleonli/paper-agent
-> - **Paper Agent Raycast extension repo (this project):** https://github.com/galleonli/paper-agent-raycast
->
-> **Start with the [Paper Agent core README](https://github.com/galleonli/paper-agent#readme) first.** This repo contains the Raycast extension only.
-> Complete core setup and run it once before using extension commands.
+Start with the [Paper Agent core setup](https://github.com/galleonli/paper-agent#quick-start), then install this extension from the [Raycast Store](https://raycast.com/marvel940804836/paper-agent).
 
 ---
 
@@ -66,7 +60,7 @@ When you use **Run Paper Pipeline** or **Install Daily Schedule**, the extension
 | **Reading Queue** | Papers you’ve queued for reading. Stored locally; same open/read/favorite actions. |
 | **Install Daily Schedule** | Install a macOS `launchd` job that runs Paper Agent daily at **04:00** and catches up once after boot/login if 04:00 was missed. Re-run after changing Preferences that affect the pipeline. |
 | **Remove Daily Schedule** | Uninstall the daily `launchd` job. Logs and status history are kept. |
-| **Check Run Status** | View whether the daily schedule is installed, today’s result, last successful day, and last run metadata. Actions: open config directory, log directory, state directory, and last run log (when available). |
+| **Check Run Status** | Inspect installed core, Python, extension and Raycast versions; check for core updates; view schedule state and the last run. Open preferences, update instructions, and logs from the action menu. |
 | **Open Paper Directory** | Open the configured paper directory in Finder (notes, `library/`, digests). |
 | **Open Config Directory** | Open the folder that contains your `config.yaml` (core repo root) in Finder. Also available as an action in **Run Paper Pipeline** (Core not found) and **Check Run Status** when **Config File Path** is set. |
 
@@ -97,9 +91,19 @@ If the extension can’t detect the core (missing or invalid config path, missin
 
 ---
 
+## Updates
+
+Open **Check Run Status** to see the versions actually in use. **Check Core Update** contacts GitHub only when selected; it reports newer stable core releases without installing them or running the pipeline. A failed check remains an error, not an up-to-date result.
+
+- **Core:** from a clean core checkout on `main`, run `git pull --ff-only && ./scripts/bootstrap.sh`. The bootstrap refreshes the Python environment and preserves an existing `config.yaml`. If Git reports local changes or a diverged branch, resolve them before updating.
+- **Store extension:** Raycast manages Store updates separately from the Python core.
+- **Development extension:** from a clean extension checkout on `main`, run `git pull --ff-only && npm ci && npm run dev`. Updating a checkout alone does not update the extension loaded in Raycast.
+
+After updating, refresh **Check Run Status**. Reinstall the daily schedule only if its paths or pipeline preferences changed.
+
 ## Development
 
-Use the Node.js version in `.node-version` (22.22.2). The extension uses Raycast API 2.6.3; its CLI requires Node.js 22.22.2 or later. Update Raycast before testing locally.
+Use the Node.js version in `.node-version` (22.22.2). The extension uses Raycast API 2.9.0; its CLI requires Node.js 22.22.2 or later. Update Raycast before testing locally.
 
 ```bash
 git clone <this-repo> && cd paper-agent-raycast

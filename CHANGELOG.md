@@ -1,5 +1,12 @@
 # Paper Agent Changelog
 
+## [Installation status and release maintenance] - 2026-10-26
+
+- Update Raycast API to 2.9.0 and refresh compatible development dependencies.
+- Show the installed core, Python, extension build, Raycast version, and installation source in Run Status.
+- Add an on-demand core update check and update instructions without changing the schedule or starting a pipeline run.
+- Publish tested development exports with SHA-256 checksums from release tags on the main branch.
+
 ## [Maintenance] - {PR_MERGE_DATE}
 
 - Update to Raycast API 2.6.3 and Node.js 22.22.2 for development and CI.
