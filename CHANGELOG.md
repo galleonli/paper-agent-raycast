@@ -1,5 +1,10 @@
 # Paper Agent Changelog
 
+## [Update check timing] - 2026-10-26
+
+- Wait for Python version inspection before checking for core updates, including when the action is selected immediately after opening or refreshing Run Status.
+- Cancel a pending update check before contacting GitHub when the command is closed or refreshed.
+
 ## [Installation status and release maintenance] - 2026-10-26
 
 - Update Raycast API to 2.9.0 and refresh compatible development dependencies.
