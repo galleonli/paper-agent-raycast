@@ -1,5 +1,12 @@
 # Paper Agent Changelog
 
+## [Setup and dependency maintenance] - 2026-11-21
+
+- Add Check Setup to inspect the core, paper directories, and configuration sources without starting a run.
+- Use YAML paper and custom library directories when Paper Directory is left empty in Raycast, including relative paths.
+- Explain which settings Raycast overrides, and provide a repair command for a missing Python executable.
+- Update Raycast API to 2.13.1 and refresh the dependency tree to address the minimatch security advisory.
+
 ## [Update check timing] - 2026-10-26
 
 - Wait for Python version inspection before checking for core updates, including when the action is selected immediately after opening or refreshing Run Status.
