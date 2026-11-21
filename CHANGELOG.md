@@ -1,5 +1,10 @@
 # Paper Agent Changelog
 
+## [YAML library loading] - 2026-11-21
+
+- Fix empty Today, Recent, and Search results when Paper Directory is unset and directories come from config.yaml.
+- Use Raycast's asynchronous data hook for setup checks, preserve the command title, and add a setup search prompt.
+
 ## [Setup and dependency maintenance] - 2026-11-21
 
 - Add Check Setup to inspect the core, paper directories, and configuration sources without starting a run.
