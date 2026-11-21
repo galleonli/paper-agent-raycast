@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import yaml from "js-yaml";
-import { applyPaperDirOverride } from "./config-utils";
+import { applyPaperDirOverride, getPaperDirFromConfigObject } from "./config-utils";
 
 type YamlObject = Record<string, unknown>;
 
@@ -159,7 +159,12 @@ export function getActiveRunLockPid(stateDir: string): number | undefined {
 
 function loadBaseConfig(configPath: string): YamlObject {
   const raw = fs.readFileSync(configPath, "utf-8");
-  const loaded = yaml.load(raw);
+  let loaded: unknown;
+  try {
+    loaded = yaml.load(raw);
+  } catch {
+    throw new Error("Config file contains invalid YAML. Check config.yaml for formatting errors.");
+  }
   if (loaded == null || typeof loaded !== "object" || Array.isArray(loaded)) {
     throw new Error("Config must be a YAML object, not a string or array.");
   }
@@ -271,7 +276,7 @@ export function buildScheduleSecrets(prefs: Preferences.RunPipeline): Record<str
   return env;
 }
 
-export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistConfigPath?: string }): PreparedRun {
+export function loadRunConfig(prefs: Preferences.RunPipeline): YamlObject {
   const configPath = prefs.configPath?.trim() ?? "";
   if (!configPath) {
     throw new Error("Set Config file path in extension Preferences.");
@@ -280,11 +285,10 @@ export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistCo
     throw new Error(`Config not found: ${configPath}`);
   }
 
-  const agentRoot = getAgentRoot(configPath);
   const base = loadBaseConfig(configPath);
 
-  if (!(prefs.paperDir?.trim() ?? "")) {
-    throw new Error("Set 'Paper directory' in extension Preferences for Run Paper Agent.");
+  if (!(prefs.paperDir?.trim() ?? "") && !getPaperDirFromConfigObject(base)) {
+    throw new Error("Set Paper Directory in Preferences or delivery.paper_dir in config.yaml.");
   }
 
   const maxPapersParsed = parseRequiredPositiveInt(prefs.maxPapersPerDay, "Max papers per day");
@@ -338,7 +342,12 @@ export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistCo
     }
   }
 
-  const merged = mergeConfig(base, prefs);
+  return mergeConfig(base, prefs);
+}
+
+export function prepareRun(prefs: Preferences.RunPipeline, options?: { persistConfigPath?: string }): PreparedRun {
+  const merged = loadRunConfig(prefs);
+  const agentRoot = getAgentRoot(prefs.configPath?.trim() ?? "");
   const targetConfigPath =
     options?.persistConfigPath ??
     path.join(os.tmpdir(), `paper-agent-run-${Date.now()}-${Math.random().toString(36).slice(2, 10)}.yaml`);
